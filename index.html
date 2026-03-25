@@ -27,19 +27,76 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { font-family: -apple-system, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: env(safe-area-inset-bottom); }
+
+  /* ========== ログイン画面 ========== */
+  #loginPage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 32px 24px;
+    background: var(--bg);
+  }
+  .login-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 32px 24px;
+    width: 100%;
+    max-width: 360px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  .login-icon { text-align: center; font-size: 40px; margin-bottom: 12px; }
+  .login-title { font-size: 20px; font-weight: 700; text-align: center; color: var(--text); margin-bottom: 4px; }
+  .login-sub { font-size: 13px; color: var(--text2); text-align: center; margin-bottom: 28px; }
+  .login-fg { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+  .login-fg label { font-size: 13px; font-weight: 600; color: var(--text2); }
+  .login-fg input {
+    border: 0.5px solid var(--border-mid);
+    border-radius: var(--radius-sm);
+    padding: 13px 14px;
+    font-size: 16px;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-appearance: none;
+    width: 100%;
+  }
+  .login-fg input:focus { outline: none; border-color: var(--blue); background: var(--blue-light); }
+  .login-btn {
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 8px;
+  }
+  .login-btn:active { opacity: 0.8; }
+  .login-btn:disabled { background: var(--text3); cursor: not-allowed; }
+  .login-error { font-size: 13px; color: var(--red); background: var(--red-light); border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 12px; display: none; text-align: center; }
+  .login-error.show { display: block; }
+
+  /* ========== メインアプリ ========== */
+  #appPage { display: none; }
   .sync-bar { background: var(--blue); color: white; font-size: 12px; text-align: center; padding: 5px; display: none; }
   .sync-bar.show { display: block; }
   .sync-bar.error { background: var(--red); }
   .header { background: var(--card); border-bottom: 0.5px solid var(--border); padding: 16px 20px 12px; padding-top: calc(16px + env(safe-area-inset-top)); position: sticky; top: 0; z-index: 100; }
-  .header h1 { font-size: 17px; font-weight: 600; text-align: center; color: var(--text); }
+  .header-row { display: flex; align-items: center; justify-content: space-between; }
+  .header h1 { font-size: 17px; font-weight: 600; text-align: center; color: var(--text); flex: 1; }
   .header .subtitle { font-size: 12px; color: var(--text2); text-align: center; margin-top: 2px; }
+  .logout-btn { background: none; border: 0.5px solid var(--border-mid); border-radius: 8px; padding: 5px 10px; font-size: 12px; color: var(--text2); cursor: pointer; white-space: nowrap; }
+  .logout-btn:active { opacity: 0.6; }
   .online-badge { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #ccc; margin-right: 4px; vertical-align: middle; }
   .online-badge.connected { background: #34C759; }
   .month-nav { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: var(--card); border-bottom: 0.5px solid var(--border); }
   .month-nav button { background: var(--bg); border: 0.5px solid var(--border-mid); border-radius: 8px; padding: 7px 16px; font-size: 15px; color: var(--blue); cursor: pointer; font-weight: 500; }
   .month-nav button:active { opacity: 0.6; }
   .month-label { font-size: 17px; font-weight: 600; color: var(--text); }
-  .tabs { display: flex; background: var(--card); border-bottom: 0.5px solid var(--border); padding: 0 16px; position: sticky; top: calc(65px + env(safe-area-inset-top)); z-index: 99; }
+  .tabs { display: flex; background: var(--card); border-bottom: 0.5px solid var(--border); padding: 0 16px; position: sticky; top: calc(72px + env(safe-area-inset-top)); z-index: 99; }
   .tab { flex: 1; padding: 12px 4px; text-align: center; font-size: 13px; color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent; font-weight: 500; }
   .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
   .page { display: none; padding: 16px; }
@@ -104,8 +161,6 @@
   .sum-name { font-size: 11px; color: var(--text2); margin-bottom: 4px; font-weight: 500; }
   .sum-amt { font-size: 17px; font-weight: 700; color: var(--text); }
   .sum-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
-
-  /* 支払明細リスト */
   .pay-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 0; border-bottom: 0.5px solid var(--border); font-size: 14px; }
   .pay-row:last-child { border-bottom: none; }
   .pay-arrow { color: var(--text2); margin: 0 6px; font-size: 12px; }
@@ -113,94 +168,110 @@
   .pay-to { font-weight: 600; color: var(--text); }
   .pay-amt-raw { font-weight: 700; color: var(--text2); }
   .pay-amt-net { font-weight: 700; color: var(--blue); font-size: 15px; }
-
   .no-payment { text-align: center; padding: 20px; color: var(--green); font-size: 14px; font-weight: 600; background: var(--green-light); border-radius: var(--radius-sm); }
   .total-line { display: flex; justify-content: space-between; align-items: center; padding: 14px 0 0; margin-top: 8px; border-top: 0.5px solid var(--border); font-size: 14px; color: var(--text2); }
   .total-line strong { font-size: 18px; font-weight: 700; color: var(--text); }
-
   .section-note { font-size: 12px; color: var(--text2); margin-bottom: 12px; line-height: 1.5; }
-  .divider { height: 1px; background: var(--border); margin: 16px 0; }
 </style>
 </head>
 <body>
 
-<div class="sync-bar" id="syncBar"></div>
-
-<div class="header">
-  <h1><span class="online-badge" id="onlineBadge"></span>送迎費用 精算ツール</h1>
-  <div class="subtitle">祢津家・橋本家・伊藤家　リアルタイム共有</div>
+<!-- ログイン画面 -->
+<div id="loginPage">
+  <div class="login-card">
+    <div class="login-icon">🚗</div>
+    <div class="login-title">送迎費用 精算ツール</div>
+    <div class="login-sub">祢津家・橋本家・伊藤家</div>
+    <div class="login-fg">
+      <label>メールアドレス</label>
+      <input type="email" id="loginEmail" placeholder="メールアドレスを入力" autocomplete="email">
+    </div>
+    <div class="login-fg">
+      <label>パスワード</label>
+      <input type="password" id="loginPassword" placeholder="パスワードを入力" autocomplete="current-password">
+    </div>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">ログイン</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
 </div>
 
-<div class="month-nav">
-  <button id="btnPrev">◀</button>
-  <div class="month-label" id="mlabel"></div>
-  <button id="btnNext">▶</button>
-</div>
+<!-- メインアプリ -->
+<div id="appPage">
+  <div class="sync-bar" id="syncBar"></div>
+  <div class="header">
+    <div class="header-row">
+      <span style="width:60px;"></span>
+      <h1><span class="online-badge" id="onlineBadge"></span>送迎費用 精算ツール</h1>
+      <button class="logout-btn" onclick="doLogout()">ログアウト</button>
+    </div>
+    <div class="subtitle">祢津家・橋本家・伊藤家　リアルタイム共有</div>
+  </div>
+  <div class="month-nav">
+    <button id="btnPrev">◀</button>
+    <div class="month-label" id="mlabel"></div>
+    <button id="btnNext">▶</button>
+  </div>
+  <div class="tabs">
+    <div class="tab active" id="tabInput" onclick="setTab('input')">入力</div>
+    <div class="tab" id="tabList" onclick="setTab('list')">履歴</div>
+    <div class="tab" id="tabSettle" onclick="setTab('settle')">月次精算</div>
+  </div>
 
-<div class="tabs">
-  <div class="tab active" id="tabInput" onclick="setTab('input')">入力</div>
-  <div class="tab" id="tabList" onclick="setTab('list')">履歴</div>
-  <div class="tab" id="tabSettle" onclick="setTab('settle')">月次精算</div>
-</div>
-
-<div class="page active" id="pInput">
-  <div class="card">
-    <div class="sec-label">高速代を記録</div>
-    <div class="form-row">
-      <div class="fg"><label>日付</label><input type="date" id="iDate"></div>
-      <div class="fg"><label>支払った家庭</label>
-        <select id="iPayer" onchange="onPayerChange()">
-          <option value="祢津">祢津家</option>
-          <option value="橋本">橋本家</option>
-          <option value="伊藤">伊藤家</option>
-        </select>
+  <div class="page active" id="pInput">
+    <div class="card">
+      <div class="sec-label">高速代を記録</div>
+      <div class="form-row">
+        <div class="fg"><label>日付</label><input type="date" id="iDate"></div>
+        <div class="fg"><label>支払った家庭</label>
+          <select id="iPayer" onchange="onPayerChange()">
+            <option value="祢津">祢津家</option>
+            <option value="橋本">橋本家</option>
+            <option value="伊藤">伊藤家</option>
+          </select>
+        </div>
+        <div class="fg"><label>金額（円）</label><input type="number" id="iAmt" placeholder="660" min="0" step="10" oninput="updateHint()"></div>
       </div>
-      <div class="fg"><label>金額（円）</label><input type="number" id="iAmt" placeholder="660" min="0" step="10" oninput="updateHint()"></div>
+      <div class="sec-label" style="margin-top:4px;">同乗していた家庭
+        <span style="font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;">（支払家庭は自動選択）</span>
+      </div>
+      <div class="fp-grid" id="iGrid">
+        <div class="fp payer" data-f="祢津" onclick="toggleFp(this)">祢津家</div>
+        <div class="fp" data-f="橋本" onclick="toggleFp(this)">橋本家</div>
+        <div class="fp" data-f="伊藤" onclick="toggleFp(this)">伊藤家</div>
+      </div>
+      <div class="hint" id="iHint">金額と同乗家庭を選ぶと負担額をプレビューできます</div>
+      <div class="smsg" id="smsg"></div>
+      <button class="primary-btn" id="addBtn" onclick="addRecord()">記録する</button>
     </div>
-    <div class="sec-label" style="margin-top:4px;">同乗していた家庭
-      <span style="font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;">（支払家庭は自動選択）</span>
-    </div>
-    <div class="fp-grid" id="iGrid">
-      <div class="fp payer" data-f="祢津" onclick="toggleFp(this)">祢津家</div>
-      <div class="fp" data-f="橋本" onclick="toggleFp(this)">橋本家</div>
-      <div class="fp" data-f="伊藤" onclick="toggleFp(this)">伊藤家</div>
-    </div>
-    <div class="hint" id="iHint">金額と同乗家庭を選ぶと負担額をプレビューできます</div>
-    <div class="smsg" id="smsg"></div>
-    <button class="primary-btn" id="addBtn" onclick="addRecord()">記録する</button>
-  </div>
-</div>
-
-<div class="page" id="pList">
-  <div id="recListWrap"><div class="empty">読み込み中...</div></div>
-</div>
-
-<div class="page" id="pSettle">
-  <!-- 支払い合計 -->
-  <div class="card">
-    <div class="sec-label">今月の支払い合計</div>
-    <div class="sum-grid" id="sgrid"></div>
   </div>
 
-  <!-- 全件積み上げ -->
-  <div class="card">
-    <div class="sec-label">送迎ごとの支払い明細（積み上げ）</div>
-    <div class="section-note">各送迎の負担額を家庭ごとに積み上げた金額です</div>
-    <div id="rawPayList"></div>
+  <div class="page" id="pList">
+    <div id="recListWrap"><div class="empty">読み込み中...</div></div>
   </div>
 
-  <!-- 相殺後の精算 -->
-  <div class="card">
-    <div class="sec-label">月次精算（相殺後）</div>
-    <div class="section-note">上記を相殺し、実際に支払う金額です</div>
-    <div id="netPayList"></div>
-    <div class="total-line"><span>今月合計</span><strong id="tamt">¥0</strong></div>
+  <div class="page" id="pSettle">
+    <div class="card">
+      <div class="sec-label">今月の支払い合計</div>
+      <div class="sum-grid" id="sgrid"></div>
+    </div>
+    <div class="card">
+      <div class="sec-label">送迎ごとの支払い明細（積み上げ）</div>
+      <div class="section-note">各送迎の負担額を家庭ごとに積み上げた金額です</div>
+      <div id="rawPayList"></div>
+    </div>
+    <div class="card">
+      <div class="sec-label">月次精算（相殺後）</div>
+      <div class="section-note">上記を相殺し、実際に支払う金額です</div>
+      <div id="netPayList"></div>
+      <div class="total-line"><span>今月合計</span><strong id="tamt">¥0</strong></div>
+    </div>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCNjev026WradbWoOfERyMCCTmsSmm7sf0",
@@ -214,12 +285,58 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const auth = getAuth(app);
+
 const FAM = ['祢津','橋本','伊藤'];
 let cY = new Date().getFullYear();
 let cM = new Date().getMonth();
 let currentData = {};
 let unsubscribe = null;
 
+// ========== 認証 ==========
+onAuthStateChanged(auth, user => {
+  if (user) {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('appPage').style.display = 'block';
+    document.getElementById('iDate').value = new Date().toISOString().split('T')[0];
+    onPayerChange();
+    updateLabel();
+    subscribeMonth();
+  } else {
+    document.getElementById('loginPage').style.display = 'flex';
+    document.getElementById('appPage').style.display = 'none';
+    if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+  }
+});
+
+window.doLogin = async function() {
+  const btn = document.getElementById('loginBtn');
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError');
+  if (!email || !password) { errEl.textContent = 'メールアドレスとパスワードを入力してください'; errEl.className = 'login-error show'; return; }
+  btn.disabled = true; btn.textContent = 'ログイン中...';
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    errEl.className = 'login-error';
+  } catch(e) {
+    let msg = 'ログインに失敗しました';
+    if (e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found') msg = 'メールアドレスまたはパスワードが違います';
+    if (e.code === 'auth/too-many-requests') msg = 'しばらく時間をおいてから再試行してください';
+    errEl.textContent = msg; errEl.className = 'login-error show';
+  }
+  btn.disabled = false; btn.textContent = 'ログイン';
+};
+
+// Enterキーでログイン
+document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') window.doLogin(); });
+document.getElementById('loginEmail').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginPassword').focus(); });
+
+window.doLogout = async function() {
+  await signOut(auth);
+};
+
+// ========== Firebase DB ==========
 function dbKey() { return cY + '_' + (cM + 1); }
 
 function syncBar(msg, isError) {
@@ -255,6 +372,7 @@ async function deleteRec(id) {
   catch(e) { syncBar('削除失敗: ' + e.message, true); }
 }
 
+// ========== 計算 ==========
 function calcShares(amt, payer, riders) {
   const n = riders.length;
   if (n === 0) return {};
@@ -266,6 +384,7 @@ function calcShares(amt, payer, riders) {
   return s;
 }
 
+// ========== 入力UI ==========
 window.toggleFp = el => { if (el.classList.contains('payer')) return; el.classList.toggle('on'); updateHint(); };
 
 window.onPayerChange = function() {
@@ -329,6 +448,7 @@ function updateLabel() { document.getElementById('mlabel').textContent = cY+'年
 document.getElementById('btnPrev').onclick = () => { cM--; if(cM<0){cM=11;cY--;} updateLabel(); subscribeMonth(); };
 document.getElementById('btnNext').onclick = () => { cM++; if(cM>11){cM=0;cY++;} updateLabel(); subscribeMonth(); };
 
+// ========== 削除・編集 ==========
 window.toggleAct = id => {
   document.querySelectorAll('.rec-actions.open,.del-confirm.open,.edit-form.open').forEach(x => { if(!x.id.endsWith(String(id))) x.classList.remove('open'); });
   document.querySelectorAll('.dot-btn.open').forEach(x => { if(!x.id.endsWith(String(id))) x.classList.remove('open'); });
@@ -339,7 +459,6 @@ window.toggleAct = id => {
 window.showDelConfirm = id => { document.getElementById('act'+id).classList.remove('open'); document.getElementById('dot'+id).classList.remove('open'); document.getElementById('delc'+id).classList.add('open'); };
 window.cancelDel = id => { document.getElementById('delc'+id).classList.remove('open'); };
 window.execDelete = async id => { await deleteRec(id); };
-
 window.openEdit = id => {
   const r = currentData[id]; if (!r) return;
   document.querySelectorAll('.rec-actions.open,.edit-form.open,.del-confirm.open').forEach(x => x.classList.remove('open'));
@@ -368,6 +487,7 @@ window.saveEdit = async id => {
   await saveRec({ ...currentData[id], date, payer, amount: amt, riders, shares: calcShares(amt, payer, riders) });
 };
 
+// ========== 描画 ==========
 function render() { const list = recs(); renderList(list); renderSettle(list); }
 
 function renderList(list) {
@@ -425,98 +545,51 @@ function renderSettle(list) {
   const paid = {'祢津':0,'橋本':0,'伊藤':0};
   const total = list.reduce((s,r) => s+r.amount, 0);
 
-  // 積み上げ：各送迎ごとに支払元→支払先を記録
-  // rawPay[from][to] = 合計金額
   const rawPay = {};
   FAM.forEach(f => { rawPay[f] = {}; FAM.forEach(t => { rawPay[f][t] = 0; }); });
 
   list.forEach(r => {
     paid[r.payer] += r.amount;
     const sh = r.shares || calcShares(r.amount, r.payer, r.riders);
-    // 支払者以外の同乗者が支払者に支払う
-    r.riders.forEach(f => {
-      if (f !== r.payer) {
-        rawPay[f][r.payer] += sh[f];
-      }
-    });
+    r.riders.forEach(f => { if (f !== r.payer) rawPay[f][r.payer] += sh[f]; });
   });
 
-  // 支払い合計カード
   document.getElementById('sgrid').innerHTML = FAM.map(f => `
     <div class="sum-card"><div class="sum-name">${f}家</div>
     <div class="sum-amt">¥${paid[f].toLocaleString()}</div>
     <div class="sum-sub">支払済</div></div>`).join('');
 
-  // 積み上げリスト表示
   const rawRows = [];
-  FAM.forEach(from => {
-    FAM.forEach(to => {
-      if (from !== to && rawPay[from][to] > 0) {
-        rawRows.push({ from, to, amt: rawPay[from][to] });
-      }
-    });
-  });
+  FAM.forEach(from => { FAM.forEach(to => { if (from !== to && rawPay[from][to] > 0) rawRows.push({from, to, amt: rawPay[from][to]}); }); });
 
-  const rawEl = document.getElementById('rawPayList');
-  if (!rawRows.length) {
-    rawEl.innerHTML = '<div class="empty" style="padding:16px;">記録がありません</div>';
-  } else {
-    rawEl.innerHTML = rawRows.map(r => `
-      <div class="pay-row">
-        <span><span class="pay-from">${r.from}家</span><span class="pay-arrow">→</span><span class="pay-to">${r.to}家</span></span>
-        <span class="pay-amt-raw">¥${r.amt.toLocaleString()}</span>
-      </div>`).join('');
-  }
+  document.getElementById('rawPayList').innerHTML = rawRows.length
+    ? rawRows.map(r => `<div class="pay-row"><span><span class="pay-from">${r.from}家</span><span class="pay-arrow">→</span><span class="pay-to">${r.to}家</span></span><span class="pay-amt-raw">¥${r.amt.toLocaleString()}</span></div>`).join('')
+    : '<div class="empty" style="padding:16px;">記録がありません</div>';
 
-  // 相殺計算：rawPay[from][to] と rawPay[to][from] を相殺
   const netPay = {};
   FAM.forEach(f => { netPay[f] = {}; FAM.forEach(t => { netPay[f][t] = 0; }); });
-
   const processed = new Set();
   FAM.forEach(from => {
     FAM.forEach(to => {
       if (from === to) return;
-      const pairKey = [from, to].sort().join('-');
-      if (processed.has(pairKey)) return;
-      processed.add(pairKey);
-      const ab = rawPay[from][to];
-      const ba = rawPay[to][from];
-      const diff = ab - ba;
+      const pk = [from,to].sort().join('-');
+      if (processed.has(pk)) return;
+      processed.add(pk);
+      const diff = rawPay[from][to] - rawPay[to][from];
       if (diff > 0) netPay[from][to] = diff;
       else if (diff < 0) netPay[to][from] = -diff;
     });
   });
 
-  // 相殺後リスト表示
   const netRows = [];
-  FAM.forEach(from => {
-    FAM.forEach(to => {
-      if (from !== to && netPay[from][to] > 0) {
-        netRows.push({ from, to, amt: netPay[from][to] });
-      }
-    });
-  });
+  FAM.forEach(from => { FAM.forEach(to => { if (from !== to && netPay[from][to] > 0) netRows.push({from, to, amt: netPay[from][to]}); }); });
 
-  const netEl = document.getElementById('netPayList');
-  if (!netRows.length && list.length > 0) {
-    netEl.innerHTML = '<div class="no-payment">今月の精算は不要です</div>';
-  } else if (!netRows.length) {
-    netEl.innerHTML = '<div class="empty" style="padding:16px;">記録がありません</div>';
-  } else {
-    netEl.innerHTML = netRows.map(r => `
-      <div class="pay-row">
-        <span><span class="pay-from">${r.from}家</span><span class="pay-arrow">→</span><span class="pay-to">${r.to}家</span></span>
-        <span class="pay-amt-net">¥${r.amt.toLocaleString()}</span>
-      </div>`).join('');
-  }
+  document.getElementById('netPayList').innerHTML = netRows.length
+    ? netRows.map(r => `<div class="pay-row"><span><span class="pay-from">${r.from}家</span><span class="pay-arrow">→</span><span class="pay-to">${r.to}家</span></span><span class="pay-amt-net">¥${r.amt.toLocaleString()}</span></div>`).join('')
+    : list.length > 0 ? '<div class="no-payment">今月の精算は不要です</div>' : '<div class="empty" style="padding:16px;">記録がありません</div>';
 
   document.getElementById('tamt').textContent = '¥' + total.toLocaleString();
 }
-
-document.getElementById('iDate').value = new Date().toISOString().split('T')[0];
-window.onPayerChange();
-updateLabel();
-subscribeMonth();
 </script>
 </body>
 </html>
