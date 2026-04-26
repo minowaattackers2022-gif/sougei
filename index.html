@@ -674,11 +674,14 @@ function renderList(list) {
   const wrap = document.getElementById('recListWrap');
   if (!list.length) { wrap.innerHTML = '<div class="empty">この月の記録はありません</div>'; return; }
   wrap.innerHTML = `<div class="rec-list">` + list.map(r => {
+    const recTotal = r.total || r.amount || 0;
     const detailParts = [];
-    if (r.toll > 0) detailParts.push(`高速代 ¥${r.toll.toLocaleString()}`);
-    if (r.transport) detailParts.push(`交通費 ¥${r.transport.cost.toLocaleString()}（往復${r.transport.roundTrip}km）`);
-    if (r.other) detailParts.push(`その他 ¥${r.other.amount.toLocaleString()}${r.other.note ? '（'+r.other.note+'）' : ''}`);
-    const riderDetail = r.riders.map(f => `${f}家 ¥${r.shares ? r.shares[f] : 0}`).join(' / ');
+    if (r.toll > 0) detailParts.push('高速代 ¥' + r.toll.toLocaleString());
+    if (r.transport) detailParts.push('交通費 ¥' + r.transport.cost.toLocaleString() + '（往復' + r.transport.roundTrip + 'km）');
+    if (r.other) detailParts.push('その他 ¥' + r.other.amount.toLocaleString() + (r.other.note ? '（'+r.other.note+'）' : ''));
+    if (detailParts.length === 0 && recTotal > 0) detailParts.push('¥' + recTotal.toLocaleString());
+    const recShares = r.shares || calcShares(recTotal, r.payer, r.riders || []);
+    const riderDetail = (r.riders || []).map(f => f + '家 ¥' + (recShares[f] || 0)).join(' / ');
     const pills = FAM.map(f => `<div class="fp${r.riders.includes(f)?' on':''}" data-f="${f}" onclick="this.classList.toggle('on')">${f}家</div>`).join('');
     const eSelect = `<select class="ePayer" style="-webkit-appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22%3E%3Cpath d=%22M1 1l5 5 5-5%22 stroke=%22%236E6E73%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;">${FAM.map(f=>`<option value="${f}">${f}家</option>`).join('')}</select>`;
     return `<div class="rec-item">
@@ -689,7 +692,7 @@ function renderList(list) {
           <div class="rec-detail">${riderDetail}</div>
         </div>
         <div class="rec-right">
-          <span class="rec-amount">¥${(r.total||0).toLocaleString()}</span>
+          <span class="rec-amount">¥' + recTotal.toLocaleString() + '</span>
           <button class="dot-btn" id="dot${r.id}" onclick="toggleAct(${r.id})">…</button>
         </div>
       </div>
@@ -744,15 +747,16 @@ function renderList(list) {
 
 function renderSettle(list) {
   const paid = {'祢津':0,'橋本':0,'伊藤':0};
-  const total = list.reduce((s,r) => s+(r.total||0), 0);
+  const total = list.reduce((s,r) => s+(r.total||r.amount||0), 0);
   const rawPay = {};
   FAM.forEach(f => { rawPay[f] = {}; FAM.forEach(t => { rawPay[f][t] = 0; }); });
 
   list.forEach(r => {
-    paid[r.payer] += (r.total||0);
-    if (r.shares) {
-      r.riders.forEach(f => { if (f !== r.payer) rawPay[f][r.payer] += r.shares[f]; });
-    }
+    const recTotal = r.total || r.amount || 0;
+    paid[r.payer] += recTotal;
+    // sharesがない旧データは合計金額から均等割りで再計算
+    const shares = r.shares || calcShares(recTotal, r.payer, r.riders || []);
+    (r.riders || []).forEach(f => { if (f !== r.payer) rawPay[f][r.payer] += (shares[f] || 0); });
   });
 
   document.getElementById('sgrid').innerHTML = FAM.map(f => `
