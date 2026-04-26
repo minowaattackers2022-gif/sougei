@@ -11,10 +11,14 @@
   :root {
     --blue: #185FA5;
     --blue-light: #E6F1FB;
+    --blue-mid: #B5D4F4;
     --green: #0F6E56;
     --green-light: #EAF3DE;
     --red: #A32D2D;
     --red-light: #FCEBEB;
+    --amber: #854F0B;
+    --amber-light: #FAEEDA;
+    --amber-border: #FAC775;
     --bg: #F5F5F7;
     --card: #FFFFFF;
     --border: rgba(0,0,0,0.10);
@@ -28,58 +32,23 @@
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { font-family: -apple-system, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: env(safe-area-inset-bottom); }
 
-  /* ========== ログイン画面 ========== */
-  #loginPage {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 32px 24px;
-    background: var(--bg);
-  }
-  .login-card {
-    background: var(--card);
-    border-radius: var(--radius);
-    padding: 32px 24px;
-    width: 100%;
-    max-width: 360px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  }
+  /* ログイン */
+  #loginPage { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 32px 24px; }
+  .login-card { background: var(--card); border-radius: var(--radius); padding: 32px 24px; width: 100%; max-width: 360px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
   .login-icon { text-align: center; font-size: 40px; margin-bottom: 12px; }
   .login-title { font-size: 20px; font-weight: 700; text-align: center; color: var(--text); margin-bottom: 4px; }
   .login-sub { font-size: 13px; color: var(--text2); text-align: center; margin-bottom: 28px; }
   .login-fg { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
   .login-fg label { font-size: 13px; font-weight: 600; color: var(--text2); }
-  .login-fg input {
-    border: 0.5px solid var(--border-mid);
-    border-radius: var(--radius-sm);
-    padding: 13px 14px;
-    font-size: 16px;
-    background: var(--bg);
-    color: var(--text);
-    -webkit-appearance: none;
-    width: 100%;
-  }
+  .login-fg input { border: 0.5px solid var(--border-mid); border-radius: var(--radius-sm); padding: 13px 14px; font-size: 16px; background: var(--bg); color: var(--text); -webkit-appearance: none; width: 100%; }
   .login-fg input:focus { outline: none; border-color: var(--blue); background: var(--blue-light); }
-  .login-btn {
-    background: var(--blue);
-    color: white;
-    border: none;
-    border-radius: var(--radius-sm);
-    padding: 14px;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 8px;
-  }
+  .login-btn { background: var(--blue); color: white; border: none; border-radius: var(--radius-sm); padding: 14px; font-size: 16px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 8px; }
   .login-btn:active { opacity: 0.8; }
   .login-btn:disabled { background: var(--text3); cursor: not-allowed; }
   .login-error { font-size: 13px; color: var(--red); background: var(--red-light); border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 12px; display: none; text-align: center; }
   .login-error.show { display: block; }
 
-  /* ========== メインアプリ ========== */
+  /* アプリ */
   #appPage { display: none; }
   .sync-bar { background: var(--blue); color: white; font-size: 12px; text-align: center; padding: 5px; display: none; }
   .sync-bar.show { display: block; }
@@ -89,7 +58,6 @@
   .header h1 { font-size: 17px; font-weight: 600; text-align: center; color: var(--text); flex: 1; }
   .header .subtitle { font-size: 12px; color: var(--text2); text-align: center; margin-top: 2px; }
   .logout-btn { background: none; border: 0.5px solid var(--border-mid); border-radius: 8px; padding: 5px 10px; font-size: 12px; color: var(--text2); cursor: pointer; white-space: nowrap; }
-  .logout-btn:active { opacity: 0.6; }
   .online-badge { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #ccc; margin-right: 4px; vertical-align: middle; }
   .online-badge.connected { background: #34C759; }
   .month-nav { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: var(--card); border-bottom: 0.5px solid var(--border); }
@@ -103,25 +71,60 @@
   .page.active { display: block; }
   .card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
   .sec-label { font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
-  .form-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-  .fg { display: flex; flex-direction: column; gap: 5px; }
+
+  /* フォーム */
+  .form-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .fg { display: flex; flex-direction: column; gap: 4px; }
   .fg label { font-size: 12px; color: var(--text2); font-weight: 500; }
   .fg input, .fg select { border: 0.5px solid var(--border-mid); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 16px; background: var(--bg); color: var(--text); -webkit-appearance: none; appearance: none; }
-  .fg input[type=date] { min-width: 150px; }
+  .fg input[type=date] { min-width: 148px; }
   .fg input[type=number] { width: 110px; }
+  .fg input[type=text] { width: 100%; }
   .fg select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236E6E73' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+  .fg .note { font-size: 11px; color: var(--text2); margin-top: 2px; }
   .fp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
-  .fp { padding: 11px 8px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; text-align: center; cursor: pointer; border: 1.5px solid var(--border); color: var(--text2); background: var(--bg); user-select: none; }
+  .fp { padding: 10px 8px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; text-align: center; cursor: pointer; border: 1.5px solid var(--border); color: var(--text2); background: var(--bg); user-select: none; }
   .fp.on { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
   .fp.payer { border-color: var(--blue); color: var(--blue); background: var(--blue-light); opacity: 0.55; }
   .fp:active:not(.payer) { transform: scale(0.96); }
-  .hint { font-size: 13px; color: var(--text2); background: var(--bg); border-radius: var(--radius-sm); padding: 10px 12px; line-height: 1.6; margin-bottom: 14px; min-height: 40px; }
+
+  /* トグルスイッチ */
+  .toggle-row { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+  .toggle { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+  .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+  .toggle-slider { position: absolute; inset: 0; background: var(--text3); border-radius: 24px; transition: .2s; }
+  .toggle-slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .toggle input:checked + .toggle-slider { background: var(--blue); }
+  .toggle input:checked + .toggle-slider:before { transform: translateX(20px); }
+  .toggle-label { font-size: 14px; font-weight: 500; color: var(--text); }
+
+  /* 折りたたみ */
+  .section-body { display: none; border-top: 0.5px solid var(--border); margin-top: 12px; padding-top: 12px; }
+  .section-body.open { display: block; }
+
+  /* ガソリン設定バナー */
+  .gas-banner { background: var(--amber-light); border: 0.5px solid var(--amber-border); border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+  .gas-banner-label { font-size: 13px; color: var(--amber); font-weight: 500; }
+  .gas-banner-right { display: flex; align-items: center; gap: 6px; }
+  .gas-banner input { width: 72px; border: 0.5px solid var(--amber-border); border-radius: 8px; padding: 5px 8px; font-size: 14px; background: white; color: var(--amber); text-align: right; font-weight: 500; }
+  .gas-banner-unit { font-size: 13px; color: var(--amber); }
+
+  /* プレビュー */
+  .preview-box { background: var(--bg); border-radius: var(--radius-sm); padding: 12px; margin-top: 10px; }
+  .preview-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 4px 0; color: var(--text2); }
+  .preview-row.strong { font-size: 15px; font-weight: 600; color: var(--text); border-top: 0.5px solid var(--border); margin-top: 6px; padding-top: 8px; }
+  .preview-row.per-fam { font-size: 14px; font-weight: 600; color: var(--blue); }
+
+  /* ステータスメッセージ */
   .smsg { font-size: 13px; padding: 10px 12px; border-radius: var(--radius-sm); margin-bottom: 12px; display: none; }
   .smsg.ok { background: var(--green-light); color: #2D5A1B; display: block; }
   .smsg.ng { background: var(--red-light); color: var(--red); display: block; }
+
   .primary-btn { background: var(--blue); color: white; border: none; border-radius: var(--radius-sm); padding: 14px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; }
   .primary-btn:active { opacity: 0.8; }
   .primary-btn:disabled { background: var(--text3); cursor: not-allowed; }
+
+  /* 履歴 */
   .rec-list { display: flex; flex-direction: column; gap: 1px; }
   .rec-item { background: var(--card); overflow: hidden; }
   .rec-item:first-child { border-radius: var(--radius) var(--radius) 0 0; }
@@ -130,11 +133,10 @@
   .rec-main { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; }
   .rec-left { flex: 1; }
   .rec-date { font-size: 14px; font-weight: 600; color: var(--text); }
-  .rec-detail { font-size: 12px; color: var(--text2); margin-top: 3px; }
+  .rec-detail { font-size: 12px; color: var(--text2); margin-top: 3px; line-height: 1.5; }
   .rec-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
   .rec-amount { font-size: 15px; font-weight: 600; color: var(--text); }
   .dot-btn { background: var(--bg); border: 0.5px solid var(--border-mid); border-radius: 8px; padding: 5px 11px; font-size: 16px; cursor: pointer; color: var(--text2); line-height: 1; }
-  .dot-btn:active { opacity: 0.6; }
   .rec-actions { display: none; border-top: 0.5px solid var(--border); }
   .rec-actions.open { display: flex; }
   .act-btn { flex: 1; padding: 12px; font-size: 14px; font-weight: 500; border: none; background: none; cursor: pointer; }
@@ -155,7 +157,10 @@
   .edit-btns { display: flex; gap: 8px; }
   .save-btn { flex: 1; background: var(--blue); color: white; border: none; border-radius: 8px; padding: 11px; font-size: 14px; font-weight: 600; cursor: pointer; }
   .cancel-btn { flex: 1; background: none; border: 0.5px solid var(--border-mid); border-radius: 8px; padding: 11px; font-size: 14px; cursor: pointer; color: var(--text); }
+
   .empty { text-align: center; padding: 40px 20px; color: var(--text2); font-size: 14px; }
+
+  /* 精算 */
   .sum-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .sum-card { background: var(--bg); border-radius: var(--radius-sm); padding: 12px 8px; text-align: center; }
   .sum-name { font-size: 11px; color: var(--text2); margin-bottom: 4px; font-weight: 500; }
@@ -217,9 +222,21 @@
     <div class="tab" id="tabSettle" onclick="setTab('settle')">月次精算</div>
   </div>
 
+  <!-- 入力ページ -->
   <div class="page active" id="pInput">
+
+    <!-- ガソリン代設定 -->
+    <div class="gas-banner">
+      <span class="gas-banner-label">ガソリン代（今月）</span>
+      <div class="gas-banner-right">
+        <input type="number" id="gasPrice" value="160" min="1" step="1" oninput="calcPreview()">
+        <span class="gas-banner-unit">円/L</span>
+      </div>
+    </div>
+
+    <!-- 基本情報 -->
     <div class="card">
-      <div class="sec-label">高速代を記録</div>
+      <div class="sec-label">基本情報</div>
       <div class="form-row">
         <div class="fg"><label>日付</label><input type="date" id="iDate"></div>
         <div class="fg"><label>支払った家庭</label>
@@ -229,7 +246,6 @@
             <option value="伊藤">伊藤家</option>
           </select>
         </div>
-        <div class="fg"><label>金額（円）</label><input type="number" id="iAmt" placeholder="660" min="0" step="10" oninput="updateHint()"></div>
       </div>
       <div class="sec-label" style="margin-top:4px;">同乗していた家庭
         <span style="font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;">（支払家庭は自動選択）</span>
@@ -239,21 +255,88 @@
         <div class="fp" data-f="橋本" onclick="toggleFp(this)">橋本家</div>
         <div class="fp" data-f="伊藤" onclick="toggleFp(this)">伊藤家</div>
       </div>
-      <div class="hint" id="iHint">金額と同乗家庭を選ぶと負担額をプレビューできます</div>
-      <div class="smsg" id="smsg"></div>
-      <button class="primary-btn" id="addBtn" onclick="addRecord()">記録する</button>
+    </div>
+
+    <!-- 高速代 -->
+    <div class="card">
+      <div class="sec-label">高速代</div>
+      <div class="form-row">
+        <div class="fg">
+          <label>金額（円）</label>
+          <input type="number" id="tollAmt" placeholder="660" min="0" step="10" oninput="calcPreview()">
+        </div>
+      </div>
+    </div>
+
+    <!-- 交通費 -->
+    <div class="card">
+      <div class="toggle-row" onclick="toggleSection('transport')">
+        <div class="toggle"><input type="checkbox" id="transportCheck"><div class="toggle-slider"></div></div>
+        <span class="toggle-label">交通費を追加する</span>
+      </div>
+      <div class="section-body" id="transport-body">
+        <div class="form-row">
+          <div class="fg">
+            <label>片道距離（km）</label>
+            <input type="number" id="oneWay" placeholder="75" min="0" step="1" oninput="calcPreview()">
+            <span class="note">片道70km以上 ・ 往復距離は自動計算</span>
+          </div>
+          <div class="fg" id="roundTripWrap" style="display:none;">
+            <label>往復距離</label>
+            <div style="padding:10px 12px;border:0.5px solid var(--border);border-radius:var(--radius-sm);font-size:15px;color:var(--text2);background:var(--bg);min-width:90px;" id="roundTripVal">—</div>
+          </div>
+        </div>
+        <div class="preview-box" id="transportPreview" style="display:none;">
+          <div class="preview-row"><span>燃費</span><span>12 km/L</span></div>
+          <div class="preview-row"><span>ガソリン代</span><span id="gasPriceDisp">160 円/L</span></div>
+          <div class="preview-row strong"><span>交通費</span><span id="transportTotal">¥0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- その他 -->
+    <div class="card">
+      <div class="toggle-row" onclick="toggleSection('other')">
+        <div class="toggle"><input type="checkbox" id="otherCheck"><div class="toggle-slider"></div></div>
+        <span class="toggle-label">その他（駐車場代など）を追加する</span>
+      </div>
+      <div class="section-body" id="other-body">
+        <div class="form-row">
+          <div class="fg">
+            <label>金額（円）</label>
+            <input type="number" id="otherAmt" placeholder="500" min="0" step="10" oninput="calcPreview()">
+          </div>
+          <div class="fg" style="flex:1;min-width:120px;">
+            <label>備考</label>
+            <input type="text" id="otherNote" placeholder="例：〇〇パーキング" style="width:100%;font-size:16px;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 合計・負担額プレビュー -->
+    <div class="card">
+      <div class="sec-label">合計・1家庭の負担額</div>
+      <div class="preview-box">
+        <div class="preview-row" id="prevTollRow" style="display:none;"><span>高速代</span><span id="prevToll">¥0</span></div>
+        <div class="preview-row" id="prevTransportRow" style="display:none;"><span>交通費</span><span id="prevTransport">¥0</span></div>
+        <div class="preview-row" id="prevOtherRow" style="display:none;"><span>その他</span><span id="prevOther">¥0</span></div>
+        <div class="preview-row strong"><span>合計</span><span id="prevTotal">¥0</span></div>
+        <div class="preview-row per-fam"><span>1家庭の負担額</span><span id="prevPer">¥0</span></div>
+      </div>
+      <div class="smsg" id="smsg" style="margin-top:10px;"></div>
+      <button class="primary-btn" id="addBtn" onclick="addRecord()" style="margin-top:12px;">記録する</button>
     </div>
   </div>
 
+  <!-- 履歴ページ -->
   <div class="page" id="pList">
     <div id="recListWrap"><div class="empty">読み込み中...</div></div>
   </div>
 
+  <!-- 精算ページ -->
   <div class="page" id="pSettle">
-    <div class="card">
-      <div class="sec-label">今月の支払い合計</div>
-      <div class="sum-grid" id="sgrid"></div>
-    </div>
+    <div class="card"><div class="sec-label">今月の支払い合計</div><div class="sum-grid" id="sgrid"></div></div>
     <div class="card">
       <div class="sec-label">送迎ごとの支払い明細（積み上げ）</div>
       <div class="section-note">各送迎の負担額を家庭ごとに積み上げた金額です</div>
@@ -286,7 +369,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
-
 const FAM = ['祢津','橋本','伊藤'];
 let cY = new Date().getFullYear();
 let cM = new Date().getMonth();
@@ -316,27 +398,36 @@ window.doLogin = async function() {
   const errEl = document.getElementById('loginError');
   if (!email || !password) { errEl.textContent = 'メールアドレスとパスワードを入力してください'; errEl.className = 'login-error show'; return; }
   btn.disabled = true; btn.textContent = 'ログイン中...';
+  errEl.className = 'login-error';
   try {
-    await signInWithEmailAndPassword(auth, email, password);
-    errEl.className = 'login-error';
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    if (result && result.user) {
+      errEl.className = 'login-error';
+    }
   } catch(e) {
-    let msg = 'ログインに失敗しました';
-    if (e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found') msg = 'メールアドレスまたはパスワードが違います';
-    if (e.code === 'auth/too-many-requests') msg = 'しばらく時間をおいてから再試行してください';
-    errEl.textContent = msg; errEl.className = 'login-error show';
+    let msg = '';
+    const code = e.code || '';
+    if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') {
+      msg = 'メールアドレスまたはパスワードが違います';
+    } else if (code === 'auth/too-many-requests') {
+      msg = 'ログイン試行回数が多すぎます。しばらく時間をおいてから再試行してください';
+    } else if (code === 'auth/network-request-failed') {
+      msg = 'ネットワークエラーです。接続を確認してください';
+    } else if (code === 'auth/invalid-email') {
+      msg = 'メールアドレスの形式が正しくありません';
+    } else {
+      msg = 'エラー: ' + (e.message || code || 'ログインできませんでした');
+    }
+    errEl.textContent = msg;
+    errEl.className = 'login-error show';
   }
   btn.disabled = false; btn.textContent = 'ログイン';
 };
-
-// Enterキーでログイン
 document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') window.doLogin(); });
 document.getElementById('loginEmail').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginPassword').focus(); });
+window.doLogout = async () => { await signOut(auth); };
 
-window.doLogout = async function() {
-  await signOut(auth);
-};
-
-// ========== Firebase DB ==========
+// ========== Firebase ==========
 function dbKey() { return cY + '_' + (cM + 1); }
 
 function syncBar(msg, isError) {
@@ -348,7 +439,7 @@ function syncBar(msg, isError) {
 
 function subscribeMonth() {
   if (unsubscribe) unsubscribe();
-  unsubscribe = onValue(ref(db, 'records/' + dbKey()), (snapshot) => {
+  unsubscribe = onValue(ref(db, 'records/' + dbKey()), snapshot => {
     currentData = snapshot.val() || {};
     document.getElementById('onlineBadge').className = 'online-badge connected';
     render();
@@ -373,19 +464,25 @@ async function deleteRec(id) {
 }
 
 // ========== 計算 ==========
-function calcShares(amt, payer, riders) {
+function calcShares(total, payer, riders) {
   const n = riders.length;
   if (n === 0) return {};
-  if (n === 1) return { [riders[0]]: amt };
-  const base = Math.ceil(amt / n / 10) * 10;
-  const ps = amt - base * (n - 1);
+  if (n === 1) return { [riders[0]]: total };
+  const per = Math.floor(total / n);
   const s = {};
-  riders.forEach(f => { s[f] = f === payer ? ps : base; });
+  riders.forEach(f => { s[f] = per; });
   return s;
 }
 
+function getGasPrice() { return parseFloat(document.getElementById('gasPrice').value) || 160; }
+
+function calcTransport(oneWay) {
+  const roundTrip = oneWay * 2;
+  return Math.floor(roundTrip / 12 * getGasPrice());
+}
+
 // ========== 入力UI ==========
-window.toggleFp = el => { if (el.classList.contains('payer')) return; el.classList.toggle('on'); updateHint(); };
+window.toggleFp = el => { if (el.classList.contains('payer')) return; el.classList.toggle('on'); calcPreview(); };
 
 window.onPayerChange = function() {
   const payer = document.getElementById('iPayer').value;
@@ -393,20 +490,54 @@ window.onPayerChange = function() {
     el.classList.remove('payer');
     if (el.dataset.f === payer) el.classList.add('on', 'payer');
   });
-  updateHint();
+  calcPreview();
 };
 
-function updateHint() {
-  const amt = parseInt(document.getElementById('iAmt').value) || 0;
-  const payer = document.getElementById('iPayer').value;
+window.toggleSection = function(name) {
+  const check = document.getElementById(name + 'Check');
+  check.checked = !check.checked;
+  document.getElementById(name + '-body').classList.toggle('open', check.checked);
+  calcPreview();
+};
+
+function calcPreview() {
+  const gasPrice = getGasPrice();
+  const toll = parseInt(document.getElementById('tollAmt').value) || 0;
+  const oneWay = parseFloat(document.getElementById('oneWay').value) || 0;
+  const otherAmt = parseInt(document.getElementById('otherAmt').value) || 0;
+  const transportOn = document.getElementById('transportCheck').checked;
+  const otherOn = document.getElementById('otherCheck').checked;
   const riders = Array.from(document.querySelectorAll('#iGrid .fp.on')).map(e => e.dataset.f);
-  const el = document.getElementById('iHint');
-  if (!amt || !riders.length) { el.textContent = '金額と同乗家庭を選ぶと負担額をプレビューできます'; return; }
-  const sh = calcShares(amt, payer, riders);
-  const rounded = riders.length > 1 && Math.ceil(amt / riders.length / 10) * 10 !== amt / riders.length;
-  el.textContent = riders.map(f => `${f}家 ¥${sh[f]}`).join('　') + (rounded ? '　（端数繰り上げあり）' : '');
+  const n = riders.length || 1;
+
+  document.getElementById('gasPriceDisp').textContent = gasPrice + ' 円/L';
+
+  let transportCost = 0;
+  if (transportOn && oneWay > 0) {
+    const roundTrip = oneWay * 2;
+    document.getElementById('roundTripWrap').style.display = '';
+    document.getElementById('roundTripVal').textContent = roundTrip + ' km';
+    transportCost = calcTransport(oneWay);
+    document.getElementById('transportPreview').style.display = '';
+    document.getElementById('transportTotal').textContent = '¥' + transportCost.toLocaleString();
+  } else {
+    document.getElementById('roundTripWrap').style.display = 'none';
+    document.getElementById('transportPreview').style.display = 'none';
+  }
+
+  const totalAmt = toll + (transportOn ? transportCost : 0) + (otherOn ? otherAmt : 0);
+  const per = Math.floor(totalAmt / n);
+
+  document.getElementById('prevTollRow').style.display = toll > 0 ? '' : 'none';
+  document.getElementById('prevToll').textContent = '¥' + toll.toLocaleString();
+  document.getElementById('prevTransportRow').style.display = transportOn && transportCost > 0 ? '' : 'none';
+  document.getElementById('prevTransport').textContent = '¥' + transportCost.toLocaleString();
+  document.getElementById('prevOtherRow').style.display = otherOn && otherAmt > 0 ? '' : 'none';
+  document.getElementById('prevOther').textContent = '¥' + otherAmt.toLocaleString();
+  document.getElementById('prevTotal').textContent = '¥' + totalAmt.toLocaleString();
+  document.getElementById('prevPer').textContent = '¥' + per.toLocaleString() + '（' + n + '家庭）';
 }
-window.updateHint = updateHint;
+window.calcPreview = calcPreview;
 
 function showMsg(txt, ok) {
   const el = document.getElementById('smsg');
@@ -418,19 +549,41 @@ window.addRecord = async function() {
   const btn = document.getElementById('addBtn');
   const date = document.getElementById('iDate').value;
   const payer = document.getElementById('iPayer').value;
-  const amt = parseInt(document.getElementById('iAmt').value);
+  const toll = parseInt(document.getElementById('tollAmt').value) || 0;
+  const transportOn = document.getElementById('transportCheck').checked;
+  const oneWay = parseFloat(document.getElementById('oneWay').value) || 0;
+  const otherOn = document.getElementById('otherCheck').checked;
+  const otherAmt = parseInt(document.getElementById('otherAmt').value) || 0;
+  const otherNote = document.getElementById('otherNote').value.trim();
   const riders = Array.from(document.querySelectorAll('#iGrid .fp.on')).map(e => e.dataset.f);
+
   if (!date) { showMsg('日付を入力してください', false); return; }
-  if (!amt || amt <= 0) { showMsg('金額を入力してください', false); return; }
   if (!riders.length) { showMsg('同乗家庭を選択してください', false); return; }
+  if (toll === 0 && !transportOn && !otherOn) { showMsg('高速代・交通費・その他のいずれかを入力してください', false); return; }
+  if (transportOn && oneWay === 0) { showMsg('片道距離を入力してください', false); return; }
+
+  const transportCost = transportOn ? calcTransport(oneWay) : 0;
+  const totalAmt = toll + transportCost + (otherOn ? otherAmt : 0);
+  const shares = calcShares(totalAmt, payer, riders);
+
+  const rec = {
+    id: Date.now(), date, payer, riders, shares,
+    toll, tollOnly: !transportOn && !otherOn,
+    transport: transportOn ? { oneWay, roundTrip: oneWay * 2, gasPrice: getGasPrice(), cost: transportCost } : null,
+    other: otherOn ? { amount: otherAmt, note: otherNote } : null,
+    total: totalAmt
+  };
+
   btn.disabled = true;
-  await saveRec({ id: Date.now(), date, payer, amount: amt, riders, shares: calcShares(amt, payer, riders) });
-  document.getElementById('iAmt').value = '';
-  document.querySelectorAll('#iGrid .fp').forEach(el => {
-    el.classList.remove('on', 'payer');
-    if (el.dataset.f === payer) el.classList.add('on', 'payer');
-  });
-  updateHint();
+  await saveRec(rec);
+
+  document.getElementById('tollAmt').value = '';
+  document.getElementById('oneWay').value = '';
+  document.getElementById('otherAmt').value = '';
+  document.getElementById('otherNote').value = '';
+  if (transportOn) toggleSection('transport');
+  if (otherOn) toggleSection('other');
+  calcPreview();
   showMsg('記録しました！', true);
   btn.disabled = false;
 };
@@ -459,32 +612,59 @@ window.toggleAct = id => {
 window.showDelConfirm = id => { document.getElementById('act'+id).classList.remove('open'); document.getElementById('dot'+id).classList.remove('open'); document.getElementById('delc'+id).classList.add('open'); };
 window.cancelDel = id => { document.getElementById('delc'+id).classList.remove('open'); };
 window.execDelete = async id => { await deleteRec(id); };
+
 window.openEdit = id => {
   const r = currentData[id]; if (!r) return;
   document.querySelectorAll('.rec-actions.open,.edit-form.open,.del-confirm.open').forEach(x => x.classList.remove('open'));
   document.querySelectorAll('.dot-btn.open').forEach(x => x.classList.remove('open'));
   const ef = document.getElementById('ef'+id);
   ef.querySelector('.eDate').value = r.date;
-  ef.querySelector('.eAmt').value = r.amount;
   ef.querySelector('.ePayer').value = r.payer;
+  ef.querySelector('.eToll').value = r.toll || '';
+  const hasTransport = !!r.transport;
+  const hasOther = !!r.other;
+  ef.querySelector('.eTransportCheck').checked = hasTransport;
+  ef.querySelector('.eTransportBody').classList.toggle('open', hasTransport);
+  ef.querySelector('.eOneWay').value = hasTransport ? r.transport.oneWay : '';
+  ef.querySelector('.eOtherCheck').checked = hasOther;
+  ef.querySelector('.eOtherBody').classList.toggle('open', hasOther);
+  ef.querySelector('.eOtherAmt').value = hasOther ? r.other.amount : '';
+  ef.querySelector('.eOtherNote').value = hasOther ? r.other.note : '';
   ef.querySelectorAll('.fp').forEach(p => p.classList.toggle('on', r.riders.includes(p.dataset.f)));
-  ef.classList.add('open'); refreshEHint(id);
+  ef.classList.add('open');
 };
 window.closeEdit = id => { document.getElementById('ef'+id).classList.remove('open'); document.getElementById('act'+id).classList.remove('open'); document.getElementById('dot'+id).classList.remove('open'); };
-window.refreshEHint = id => {
-  const ef = document.getElementById('ef'+id); if (!ef) return;
-  const amt = parseInt(ef.querySelector('.eAmt').value)||0;
-  const payer = ef.querySelector('.ePayer').value;
-  const riders = Array.from(ef.querySelectorAll('.fp.on')).map(e => e.dataset.f);
-  ef.querySelector('.edit-hint').textContent = (!amt||!riders.length) ? '金額と同乗家庭を確認してください' : riders.map(f=>`${f}家 ¥${calcShares(amt,payer,riders)[f]}`).join('　');
+
+window.toggleEditSection = (id, name) => {
+  const ef = document.getElementById('ef'+id);
+  const check = ef.querySelector('.e' + name.charAt(0).toUpperCase() + name.slice(1) + 'Check');
+  check.checked = !check.checked;
+  ef.querySelector('.e' + name.charAt(0).toUpperCase() + name.slice(1) + 'Body').classList.toggle('open', check.checked);
 };
+
 window.saveEdit = async id => {
   const ef = document.getElementById('ef'+id);
-  const date = ef.querySelector('.eDate').value, payer = ef.querySelector('.ePayer').value;
-  const amt = parseInt(ef.querySelector('.eAmt').value);
+  const date = ef.querySelector('.eDate').value;
+  const payer = ef.querySelector('.ePayer').value;
+  const toll = parseInt(ef.querySelector('.eToll').value) || 0;
+  const transportOn = ef.querySelector('.eTransportCheck').checked;
+  const oneWay = parseFloat(ef.querySelector('.eOneWay').value) || 0;
+  const otherOn = ef.querySelector('.eOtherCheck').checked;
+  const otherAmt = parseInt(ef.querySelector('.eOtherAmt').value) || 0;
+  const otherNote = ef.querySelector('.eOtherNote').value.trim();
   const riders = Array.from(ef.querySelectorAll('.fp.on')).map(e => e.dataset.f);
-  if (!date||!amt||amt<=0||!riders.length) { showMsg('すべての項目を入力してください', false); return; }
-  await saveRec({ ...currentData[id], date, payer, amount: amt, riders, shares: calcShares(amt, payer, riders) });
+  if (!date || !riders.length) { showMsg('日付と同乗家庭を入力してください', false); return; }
+  const gasPrice = currentData[id]?.transport?.gasPrice || getGasPrice();
+  const transportCost = transportOn ? Math.floor(oneWay * 2 / 12 * gasPrice) : 0;
+  const totalAmt = toll + transportCost + (otherOn ? otherAmt : 0);
+  const shares = calcShares(totalAmt, payer, riders);
+  const rec = {
+    ...currentData[id], date, payer, riders, shares, toll,
+    transport: transportOn ? { oneWay, roundTrip: oneWay*2, gasPrice, cost: transportCost } : null,
+    other: otherOn ? { amount: otherAmt, note: otherNote } : null,
+    total: totalAmt
+  };
+  await saveRec(rec);
 };
 
 // ========== 描画 ==========
@@ -494,17 +674,22 @@ function renderList(list) {
   const wrap = document.getElementById('recListWrap');
   if (!list.length) { wrap.innerHTML = '<div class="empty">この月の記録はありません</div>'; return; }
   wrap.innerHTML = `<div class="rec-list">` + list.map(r => {
-    const sh = r.shares || calcShares(r.amount, r.payer, r.riders);
-    const detail = r.riders.map(f => `${f}家 ¥${sh[f]}`).join(' / ');
-    const pills = FAM.map(f => `<div class="fp${r.riders.includes(f)?' on':''}" data-f="${f}" onclick="this.classList.toggle('on');refreshEHint(${r.id})">${f}家</div>`).join('');
+    const detailParts = [];
+    if (r.toll > 0) detailParts.push(`高速代 ¥${r.toll.toLocaleString()}`);
+    if (r.transport) detailParts.push(`交通費 ¥${r.transport.cost.toLocaleString()}（往復${r.transport.roundTrip}km）`);
+    if (r.other) detailParts.push(`その他 ¥${r.other.amount.toLocaleString()}${r.other.note ? '（'+r.other.note+'）' : ''}`);
+    const riderDetail = r.riders.map(f => `${f}家 ¥${r.shares ? r.shares[f] : 0}`).join(' / ');
+    const pills = FAM.map(f => `<div class="fp${r.riders.includes(f)?' on':''}" data-f="${f}" onclick="this.classList.toggle('on')">${f}家</div>`).join('');
+    const eSelect = `<select class="ePayer" style="-webkit-appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22%3E%3Cpath d=%22M1 1l5 5 5-5%22 stroke=%22%236E6E73%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;">${FAM.map(f=>`<option value="${f}">${f}家</option>`).join('')}</select>`;
     return `<div class="rec-item">
       <div class="rec-main">
         <div class="rec-left">
           <div class="rec-date">${r.date.replace(/-/g,'/')}　${r.payer}家 支払</div>
-          <div class="rec-detail">${detail}</div>
+          <div class="rec-detail">${detailParts.join(' ・ ')}</div>
+          <div class="rec-detail">${riderDetail}</div>
         </div>
         <div class="rec-right">
-          <span class="rec-amount">¥${r.amount.toLocaleString()}</span>
+          <span class="rec-amount">¥${(r.total||0).toLocaleString()}</span>
           <button class="dot-btn" id="dot${r.id}" onclick="toggleAct(${r.id})">…</button>
         </div>
       </div>
@@ -520,18 +705,34 @@ function renderList(list) {
         </div>
       </div>
       <div class="edit-form" id="ef${r.id}">
-        <div class="form-row">
-          <div class="fg"><label>日付</label><input class="eDate" type="date" oninput="refreshEHint(${r.id})"></div>
-          <div class="fg"><label>支払った家庭</label>
-            <select class="ePayer" onchange="refreshEHint(${r.id})" style="-webkit-appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22%3E%3Cpath d=%22M1 1l5 5 5-5%22 stroke=%22%236E6E73%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;">
-              ${FAM.map(f=>`<option value="${f}">${f}家</option>`).join('')}
-            </select>
-          </div>
-          <div class="fg"><label>金額（円）</label><input class="eAmt" type="number" min="0" step="10" oninput="refreshEHint(${r.id})"></div>
+        <div class="form-row" style="margin-bottom:10px;">
+          <div class="fg"><label>日付</label><input class="eDate" type="date"></div>
+          <div class="fg"><label>支払った家庭</label>${eSelect}</div>
         </div>
         <div style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:6px;">同乗していた家庭</div>
         <div class="edit-fp-grid">${pills}</div>
-        <div class="edit-hint"></div>
+        <div class="fg" style="margin-bottom:10px;"><label>高速代（円）</label><input class="eToll" type="number" min="0" step="10" placeholder="660"></div>
+        <div style="border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:10px;margin-bottom:10px;">
+          <div class="toggle-row" onclick="toggleEditSection(${r.id},'transport')" style="margin-bottom:0;">
+            <div class="toggle"><input class="eTransportCheck" type="checkbox"><div class="toggle-slider"></div></div>
+            <span class="toggle-label" style="font-size:13px;">交通費</span>
+          </div>
+          <div class="section-body eTransportBody" style="padding-top:10px;">
+            <div class="fg"><label>片道距離（km）</label><input class="eOneWay" type="number" min="0" step="1" placeholder="75"></div>
+          </div>
+        </div>
+        <div style="border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:10px;margin-bottom:10px;">
+          <div class="toggle-row" onclick="toggleEditSection(${r.id},'other')" style="margin-bottom:0;">
+            <div class="toggle"><input class="eOtherCheck" type="checkbox"><div class="toggle-slider"></div></div>
+            <span class="toggle-label" style="font-size:13px;">その他</span>
+          </div>
+          <div class="section-body eOtherBody" style="padding-top:10px;">
+            <div class="form-row">
+              <div class="fg"><label>金額（円）</label><input class="eOtherAmt" type="number" min="0" step="10" placeholder="500"></div>
+              <div class="fg" style="flex:1;"><label>備考</label><input class="eOtherNote" type="text" placeholder="〇〇パーキング" style="width:100%;font-size:16px;"></div>
+            </div>
+          </div>
+        </div>
         <div class="edit-btns">
           <button class="save-btn" onclick="saveEdit(${r.id})">保存する</button>
           <button class="cancel-btn" onclick="closeEdit(${r.id})">キャンセル</button>
@@ -543,15 +744,15 @@ function renderList(list) {
 
 function renderSettle(list) {
   const paid = {'祢津':0,'橋本':0,'伊藤':0};
-  const total = list.reduce((s,r) => s+r.amount, 0);
-
+  const total = list.reduce((s,r) => s+(r.total||0), 0);
   const rawPay = {};
   FAM.forEach(f => { rawPay[f] = {}; FAM.forEach(t => { rawPay[f][t] = 0; }); });
 
   list.forEach(r => {
-    paid[r.payer] += r.amount;
-    const sh = r.shares || calcShares(r.amount, r.payer, r.riders);
-    r.riders.forEach(f => { if (f !== r.payer) rawPay[f][r.payer] += sh[f]; });
+    paid[r.payer] += (r.total||0);
+    if (r.shares) {
+      r.riders.forEach(f => { if (f !== r.payer) rawPay[f][r.payer] += r.shares[f]; });
+    }
   });
 
   document.getElementById('sgrid').innerHTML = FAM.map(f => `
@@ -560,35 +761,28 @@ function renderSettle(list) {
     <div class="sum-sub">支払済</div></div>`).join('');
 
   const rawRows = [];
-  FAM.forEach(from => { FAM.forEach(to => { if (from !== to && rawPay[from][to] > 0) rawRows.push({from, to, amt: rawPay[from][to]}); }); });
-
+  FAM.forEach(from => { FAM.forEach(to => { if (from!==to && rawPay[from][to]>0) rawRows.push({from,to,amt:rawPay[from][to]}); }); });
   document.getElementById('rawPayList').innerHTML = rawRows.length
-    ? rawRows.map(r => `<div class="pay-row"><span><span class="pay-from">${r.from}家</span><span class="pay-arrow">→</span><span class="pay-to">${r.to}家</span></span><span class="pay-amt-raw">¥${r.amt.toLocaleString()}</span></div>`).join('')
+    ? rawRows.map(r=>`<div class="pay-row"><span><span class="pay-from">${r.from}家</span><span class="pay-arrow">→</span><span class="pay-to">${r.to}家</span></span><span class="pay-amt-raw">¥${r.amt.toLocaleString()}</span></div>`).join('')
     : '<div class="empty" style="padding:16px;">記録がありません</div>';
 
-  const netPay = {};
-  FAM.forEach(f => { netPay[f] = {}; FAM.forEach(t => { netPay[f][t] = 0; }); });
+  const netPay = {}; FAM.forEach(f=>{netPay[f]={};FAM.forEach(t=>{netPay[f][t]=0;});});
   const processed = new Set();
-  FAM.forEach(from => {
-    FAM.forEach(to => {
-      if (from === to) return;
-      const pk = [from,to].sort().join('-');
-      if (processed.has(pk)) return;
-      processed.add(pk);
-      const diff = rawPay[from][to] - rawPay[to][from];
-      if (diff > 0) netPay[from][to] = diff;
-      else if (diff < 0) netPay[to][from] = -diff;
-    });
-  });
+  FAM.forEach(from => { FAM.forEach(to => {
+    if (from===to) return;
+    const pk=[from,to].sort().join('-');
+    if (processed.has(pk)) return; processed.add(pk);
+    const diff=rawPay[from][to]-rawPay[to][from];
+    if (diff>0) netPay[from][to]=diff; else if (diff<0) netPay[to][from]=-diff;
+  }); });
 
-  const netRows = [];
-  FAM.forEach(from => { FAM.forEach(to => { if (from !== to && netPay[from][to] > 0) netRows.push({from, to, amt: netPay[from][to]}); }); });
-
+  const netRows=[];
+  FAM.forEach(from=>{FAM.forEach(to=>{if(from!==to&&netPay[from][to]>0)netRows.push({from,to,amt:netPay[from][to]});});});
   document.getElementById('netPayList').innerHTML = netRows.length
-    ? netRows.map(r => `<div class="pay-row"><span><span class="pay-from">${r.from}家</span><span class="pay-arrow">→</span><span class="pay-to">${r.to}家</span></span><span class="pay-amt-net">¥${r.amt.toLocaleString()}</span></div>`).join('')
-    : list.length > 0 ? '<div class="no-payment">今月の精算は不要です</div>' : '<div class="empty" style="padding:16px;">記録がありません</div>';
+    ? netRows.map(r=>`<div class="pay-row"><span><span class="pay-from">${r.from}家</span><span class="pay-arrow">→</span><span class="pay-to">${r.to}家</span></span><span class="pay-amt-net">¥${r.amt.toLocaleString()}</span></div>`).join('')
+    : list.length>0 ? '<div class="no-payment">今月の精算は不要です</div>' : '<div class="empty" style="padding:16px;">記録がありません</div>';
 
-  document.getElementById('tamt').textContent = '¥' + total.toLocaleString();
+  document.getElementById('tamt').textContent = '¥'+total.toLocaleString();
 }
 </script>
 </body>
