@@ -692,7 +692,7 @@ function renderList(list) {
           <div class="rec-detail">${riderDetail}</div>
         </div>
         <div class="rec-right">
-          <span class="rec-amount">¥' + recTotal.toLocaleString() + '</span>
+          <span class="rec-amount">${recTotal.toLocaleString()}</span>
           <button class="dot-btn" id="dot${r.id}" onclick="toggleAct(${r.id})">…</button>
         </div>
       </div>
