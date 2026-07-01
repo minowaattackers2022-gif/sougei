@@ -449,6 +449,8 @@ window.doLogout = async () => { await signOut(auth); };
 
 // ========== Firebase ==========
 function dbKey() { return cY + '_' + (cM + 1); }
+// 記録は「今開いている月」ではなく「日付の月」の箱に保存する
+function keyFromDate(dateStr) { const p = String(dateStr).split('-'); return p[0] + '_' + parseInt(p[1], 10); }
 
 function syncBar(msg, isError) {
   const el = document.getElementById('syncBar');
@@ -473,8 +475,13 @@ function recs() { return Object.values(currentData).sort((a,b) => a.date.localeC
 
 async function saveRec(rec) {
   syncBar('保存中...');
-  try { await set(ref(db, 'records/' + dbKey() + '/' + rec.id), rec); syncBar('保存しました ✓'); }
+  try { await set(ref(db, 'records/' + keyFromDate(rec.date) + '/' + rec.id), rec); syncBar('保存しました ✓'); }
   catch(e) { syncBar('保存失敗: ' + e.message, true); }
+}
+
+async function removeRecAt(key, id) {
+  try { await remove(ref(db, 'records/' + key + '/' + id)); }
+  catch(e) { syncBar('移動失敗: ' + e.message, true); }
 }
 
 async function deleteRec(id) {
@@ -669,7 +676,12 @@ window.addRecord = async function() {
   if (transportOn) toggleSection('transport');
   if (otherOn) toggleSection('other');
   calcPreview();
-  showMsg('記録しました！', true);
+  if (keyFromDate(date) !== dbKey()) {
+    showMsg((parseInt(date.split('-')[1],10)) + '月の記録として保存しました。表示を切り替えます', true);
+    goToMonthOf(date);
+  } else {
+    showMsg('記録しました！', true);
+  }
   btn.disabled = false;
 };
 
@@ -682,6 +694,8 @@ window.setTab = name => {
 };
 
 function updateLabel() { document.getElementById('mlabel').textContent = cY+'年'+(cM+1)+'月'; }
+// 指定した日付の月に表示を切り替える
+function goToMonthOf(dateStr) { const p = String(dateStr).split('-'); cY = parseInt(p[0],10); cM = parseInt(p[1],10) - 1; updateLabel(); subscribeMonth(); }
 
 document.getElementById('btnPrev').onclick = () => { cM--; if(cM<0){cM=11;cY--;} updateLabel(); subscribeMonth(); };
 document.getElementById('btnNext').onclick = () => { cM++; if(cM>11){cM=0;cY++;} updateLabel(); subscribeMonth(); };
@@ -787,6 +801,11 @@ window.saveEdit = async id => {
     total: totalAmt
   };
   await saveRec(rec);
+  // 日付の月が今表示している月と違う場合、古い箱から取り除いてその月へ移動
+  if (keyFromDate(rec.date) !== dbKey()) {
+    await removeRecAt(dbKey(), id);
+    goToMonthOf(rec.date);
+  }
 };
 
 // ========== 描画 ==========
