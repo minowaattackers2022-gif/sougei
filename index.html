@@ -177,6 +177,18 @@
   .total-line { display: flex; justify-content: space-between; align-items: center; padding: 14px 0 0; margin-top: 8px; border-top: 0.5px solid var(--border); font-size: 14px; color: var(--text2); }
   .total-line strong { font-size: 18px; font-weight: 700; color: var(--text); }
   .section-note { font-size: 12px; color: var(--text2); margin-bottom: 12px; line-height: 1.5; }
+
+  /* 送迎方法（往復／片道） */
+  .ow-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 0.5px solid var(--border); }
+  .ow-row:last-child { border-bottom: none; }
+  .ow-name { font-size: 14px; font-weight: 500; color: var(--text); }
+  .ow-seg { display: flex; border: 0.5px solid var(--border-mid); border-radius: 9px; overflow: hidden; }
+  .ow-opt { padding: 8px 13px; font-size: 13px; background: var(--bg); color: var(--text2); border: none; cursor: pointer; font-family: inherit; }
+  .ow-opt + .ow-opt { border-left: 0.5px solid var(--border-mid); }
+  .ow-opt.on { background: var(--blue); color: white; font-weight: 600; }
+  .ow-opt.ow-half.on { background: var(--amber); }
+  .ow-tag { display: inline-block; font-size: 10px; font-weight: 600; color: var(--amber); background: var(--amber-light); border: 0.5px solid var(--amber-border); border-radius: 6px; padding: 1px 6px; margin-left: 4px; vertical-align: middle; }
+  .eow-list { margin-bottom: 10px; }
 </style>
 </head>
 <body>
@@ -255,6 +267,13 @@
         <div class="fp" data-f="橋本" onclick="toggleFp(this)">橋本家</div>
         <div class="fp" data-f="伊藤" onclick="toggleFp(this)">伊藤家</div>
       </div>
+      <div id="oneWaySection" style="display:none;margin-top:14px;">
+        <div class="sec-label" style="margin-bottom:8px;">送迎方法
+          <span style="font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;">（片道は往復の半額で計算）</span>
+        </div>
+        <div id="oneWayList"></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.5;">支払家庭は必ず往復です。片道の子がいる場合、不足分は往復の家庭が負担し、支払家庭は費用を全額回収できます。</div>
+      </div>
     </div>
 
     <!-- 高速代 -->
@@ -322,7 +341,8 @@
         <div class="preview-row" id="prevTransportRow" style="display:none;"><span>交通費</span><span id="prevTransport">¥0</span></div>
         <div class="preview-row" id="prevOtherRow" style="display:none;"><span>その他</span><span id="prevOther">¥0</span></div>
         <div class="preview-row strong"><span>合計</span><span id="prevTotal">¥0</span></div>
-        <div class="preview-row per-fam"><span>1家庭の負担額</span><span id="prevPer">¥0</span></div>
+        <div class="preview-row per-fam" id="prevPerRow"><span>1家庭の負担額</span><span id="prevPer">¥0</span></div>
+        <div id="prevPerFamily" style="display:none;"></div>
       </div>
       <div class="smsg" id="smsg" style="margin-top:10px;"></div>
       <button class="primary-btn" id="addBtn" onclick="addRecord()" style="margin-top:12px;">記録する</button>
@@ -464,13 +484,24 @@ async function deleteRec(id) {
 }
 
 // ========== 計算 ==========
-function calcShares(total, payer, riders) {
+// 片道 = 往復の半額。重み（往復1.0 / 片道0.5）で按分し、
+// 端数は運転した家庭を除いた家庭に1円ずつ配る → 運転者は必ず費用を全額回収できる
+function calcShares(total, payer, riders, oneWayRiders) {
+  oneWayRiders = oneWayRiders || [];
   const n = riders.length;
   if (n === 0) return {};
-  if (n === 1) return { [riders[0]]: total };
-  const per = Math.floor(total / n);
   const s = {};
-  riders.forEach(f => { s[f] = per; });
+  if (total === 0) { riders.forEach(f => { s[f] = 0; }); return s; }
+  const weightOf = f => (oneWayRiders.includes(f) ? 0.5 : 1);
+  const totalWeight = riders.reduce((sum, f) => sum + weightOf(f), 0);
+  if (totalWeight === 0) { riders.forEach(f => { s[f] = 0; }); return s; }
+  let assigned = 0;
+  riders.forEach(f => { s[f] = Math.floor(total * weightOf(f) / totalWeight); assigned += s[f]; });
+  let remainder = total - assigned;
+  const pool = riders.filter(f => f !== payer);
+  const target = pool.length ? pool : riders;
+  let i = 0;
+  while (remainder > 0) { s[target[i % target.length]] += 1; remainder--; i++; }
   return s;
 }
 
@@ -482,7 +513,7 @@ function calcTransport(oneWay) {
 }
 
 // ========== 入力UI ==========
-window.toggleFp = el => { if (el.classList.contains('payer')) return; el.classList.toggle('on'); calcPreview(); };
+window.toggleFp = el => { if (el.classList.contains('payer')) return; el.classList.toggle('on'); rebuildOneWay(); calcPreview(); };
 
 window.onPayerChange = function() {
   const payer = document.getElementById('iPayer').value;
@@ -490,8 +521,45 @@ window.onPayerChange = function() {
     el.classList.remove('payer');
     if (el.dataset.f === payer) el.classList.add('on', 'payer');
   });
+  rebuildOneWay();
   calcPreview();
 };
+
+// 選択中の「支払家庭以外の同乗家庭」に往復／片道の切替を表示（片道=半額）
+function rebuildOneWay() {
+  const payer = document.getElementById('iPayer').value;
+  const riders = Array.from(document.querySelectorAll('#iGrid .fp.on')).map(e => e.dataset.f);
+  const nonPayer = riders.filter(f => f !== payer);
+  const section = document.getElementById('oneWaySection');
+  const listEl = document.getElementById('oneWayList');
+  const prev = {};
+  listEl.querySelectorAll('.ow-row').forEach(row => { prev[row.dataset.f] = row.dataset.type; });
+  if (nonPayer.length === 0) { section.style.display = 'none'; listEl.innerHTML = ''; return; }
+  section.style.display = '';
+  listEl.innerHTML = nonPayer.map(f => {
+    const t = prev[f] || 'round';
+    return `<div class="ow-row" data-f="${f}" data-type="${t}">
+      <span class="ow-name">${f}家</span>
+      <div class="ow-seg">
+        <button type="button" class="ow-opt${t==='round'?' on':''}" onclick="setOneWay('${f}','round')">往復</button>
+        <button type="button" class="ow-opt ow-half${t==='oneway'?' on':''}" onclick="setOneWay('${f}','oneway')">片道 半額</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+window.setOneWay = (f, type) => {
+  const row = Array.from(document.querySelectorAll('#oneWayList .ow-row')).find(r => r.dataset.f === f);
+  if (!row) return;
+  row.dataset.type = type;
+  const btns = row.querySelectorAll('.ow-opt');
+  btns[0].classList.toggle('on', type === 'round');
+  btns[1].classList.toggle('on', type === 'oneway');
+  calcPreview();
+};
+function getOneWayRiders() {
+  return Array.from(document.querySelectorAll('#oneWayList .ow-row'))
+    .filter(row => row.dataset.type === 'oneway').map(row => row.dataset.f);
+}
 
 window.toggleSection = function(name) {
   const check = document.getElementById(name + 'Check');
@@ -535,7 +603,23 @@ function calcPreview() {
   document.getElementById('prevOtherRow').style.display = otherOn && otherAmt > 0 ? '' : 'none';
   document.getElementById('prevOther').textContent = '¥' + otherAmt.toLocaleString();
   document.getElementById('prevTotal').textContent = '¥' + totalAmt.toLocaleString();
-  document.getElementById('prevPer').textContent = '¥' + per.toLocaleString() + '（' + n + '家庭）';
+
+  const payer = document.getElementById('iPayer').value;
+  const oneWayRiders = getOneWayRiders();
+  const prevPerRow = document.getElementById('prevPerRow');
+  const prevPerFamily = document.getElementById('prevPerFamily');
+  if (oneWayRiders.length === 0) {
+    prevPerRow.style.display = '';
+    prevPerFamily.style.display = 'none';
+    document.getElementById('prevPer').textContent = '¥' + per.toLocaleString() + '（' + n + '家庭）';
+  } else {
+    prevPerRow.style.display = 'none';
+    prevPerFamily.style.display = '';
+    const shares = calcShares(totalAmt, payer, riders, oneWayRiders);
+    prevPerFamily.innerHTML = riders.map(f =>
+      `<div class="preview-row per-fam"><span>${f}家${oneWayRiders.includes(f)?' <span class="ow-tag">片道</span>':''}</span><span>¥${(shares[f]||0).toLocaleString()}</span></div>`
+    ).join('');
+  }
 }
 window.calcPreview = calcPreview;
 
@@ -564,10 +648,11 @@ window.addRecord = async function() {
 
   const transportCost = transportOn ? calcTransport(oneWay) : 0;
   const totalAmt = toll + transportCost + (otherOn ? otherAmt : 0);
-  const shares = calcShares(totalAmt, payer, riders);
+  const oneWayRiders = getOneWayRiders();
+  const shares = calcShares(totalAmt, payer, riders, oneWayRiders);
 
   const rec = {
-    id: Date.now(), date, payer, riders, shares,
+    id: Date.now(), date, payer, riders, oneWayRiders, shares,
     toll, tollOnly: !transportOn && !otherOn,
     transport: transportOn ? { oneWay, roundTrip: oneWay * 2, gasPrice: getGasPrice(), cost: transportCost } : null,
     other: otherOn ? { amount: otherAmt, note: otherNote } : null,
@@ -631,7 +716,42 @@ window.openEdit = id => {
   ef.querySelector('.eOtherAmt').value = hasOther ? r.other.amount : '';
   ef.querySelector('.eOtherNote').value = hasOther ? r.other.note : '';
   ef.querySelectorAll('.fp').forEach(p => p.classList.toggle('on', r.riders.includes(p.dataset.f)));
+  rebuildEditOneWay(id);
+  (r.oneWayRiders || []).forEach(f => setEditOneWay(id, f, 'oneway'));
   ef.classList.add('open');
+};
+
+// 編集フォーム内の往復／片道
+window.editPillToggle = (el, id) => { el.classList.toggle('on'); rebuildEditOneWay(id); };
+window.rebuildEditOneWay = (id) => {
+  const ef = document.getElementById('ef'+id);
+  if (!ef) return;
+  const payer = ef.querySelector('.ePayer').value;
+  const riders = Array.from(ef.querySelectorAll('.edit-fp-grid .fp.on')).map(e => e.dataset.f);
+  const nonPayer = riders.filter(f => f !== payer);
+  const listEl = document.getElementById('eow'+id);
+  const prev = {};
+  listEl.querySelectorAll('.ow-row').forEach(row => { prev[row.dataset.f] = row.dataset.type; });
+  if (nonPayer.length === 0) { listEl.innerHTML = '<div style="font-size:12px;color:var(--text2);padding:4px 0;">全員往復です</div>'; return; }
+  listEl.innerHTML = nonPayer.map(f => {
+    const t = prev[f] || 'round';
+    return `<div class="ow-row" data-f="${f}" data-type="${t}">
+      <span class="ow-name">${f}家</span>
+      <div class="ow-seg">
+        <button type="button" class="ow-opt${t==='round'?' on':''}" onclick="setEditOneWay(${id},'${f}','round')">往復</button>
+        <button type="button" class="ow-opt ow-half${t==='oneway'?' on':''}" onclick="setEditOneWay(${id},'${f}','oneway')">片道 半額</button>
+      </div>
+    </div>`;
+  }).join('');
+};
+window.setEditOneWay = (id, f, type) => {
+  const listEl = document.getElementById('eow'+id);
+  const row = Array.from(listEl.querySelectorAll('.ow-row')).find(r => r.dataset.f === f);
+  if (!row) return;
+  row.dataset.type = type;
+  const btns = row.querySelectorAll('.ow-opt');
+  btns[0].classList.toggle('on', type === 'round');
+  btns[1].classList.toggle('on', type === 'oneway');
 };
 window.closeEdit = id => { document.getElementById('ef'+id).classList.remove('open'); document.getElementById('act'+id).classList.remove('open'); document.getElementById('dot'+id).classList.remove('open'); };
 
@@ -652,14 +772,16 @@ window.saveEdit = async id => {
   const otherOn = ef.querySelector('.eOtherCheck').checked;
   const otherAmt = parseInt(ef.querySelector('.eOtherAmt').value) || 0;
   const otherNote = ef.querySelector('.eOtherNote').value.trim();
-  const riders = Array.from(ef.querySelectorAll('.fp.on')).map(e => e.dataset.f);
+  const riders = Array.from(ef.querySelectorAll('.edit-fp-grid .fp.on')).map(e => e.dataset.f);
   if (!date || !riders.length) { showMsg('日付と同乗家庭を入力してください', false); return; }
   const gasPrice = currentData[id]?.transport?.gasPrice || getGasPrice();
   const transportCost = transportOn ? Math.floor(oneWay * 2 / 12 * gasPrice) : 0;
   const totalAmt = toll + transportCost + (otherOn ? otherAmt : 0);
-  const shares = calcShares(totalAmt, payer, riders);
+  const eowList = document.getElementById('eow'+id);
+  const oneWayRiders = eowList ? Array.from(eowList.querySelectorAll('.ow-row')).filter(row => row.dataset.type === 'oneway').map(row => row.dataset.f) : [];
+  const shares = calcShares(totalAmt, payer, riders, oneWayRiders);
   const rec = {
-    ...currentData[id], date, payer, riders, shares, toll,
+    ...currentData[id], date, payer, riders, oneWayRiders, shares, toll,
     transport: transportOn ? { oneWay, roundTrip: oneWay*2, gasPrice, cost: transportCost } : null,
     other: otherOn ? { amount: otherAmt, note: otherNote } : null,
     total: totalAmt
@@ -680,10 +802,11 @@ function renderList(list) {
     if (r.transport) detailParts.push('交通費 ¥' + r.transport.cost.toLocaleString() + '（往復' + r.transport.roundTrip + 'km）');
     if (r.other) detailParts.push('その他 ¥' + r.other.amount.toLocaleString() + (r.other.note ? '（'+r.other.note+'）' : ''));
     if (detailParts.length === 0 && recTotal > 0) detailParts.push('¥' + recTotal.toLocaleString());
-    const recShares = r.shares || calcShares(recTotal, r.payer, r.riders || []);
-    const riderDetail = (r.riders || []).map(f => f + '家 ¥' + (recShares[f] || 0)).join(' / ');
-    const pills = FAM.map(f => `<div class="fp${r.riders.includes(f)?' on':''}" data-f="${f}" onclick="this.classList.toggle('on')">${f}家</div>`).join('');
-    const eSelect = `<select class="ePayer" style="-webkit-appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22%3E%3Cpath d=%22M1 1l5 5 5-5%22 stroke=%22%236E6E73%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;">${FAM.map(f=>`<option value="${f}">${f}家</option>`).join('')}</select>`;
+    const recShares = r.shares || calcShares(recTotal, r.payer, r.riders || [], r.oneWayRiders || []);
+    const owr = r.oneWayRiders || [];
+    const riderDetail = (r.riders || []).map(f => f + '家 ¥' + (recShares[f] || 0) + (owr.includes(f) ? '（片道）' : '')).join(' / ');
+    const pills = FAM.map(f => `<div class="fp${r.riders.includes(f)?' on':''}" data-f="${f}" onclick="editPillToggle(this,${r.id})">${f}家</div>`).join('');
+    const eSelect = `<select class="ePayer" onchange="rebuildEditOneWay(${r.id})" style="-webkit-appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22%3E%3Cpath d=%22M1 1l5 5 5-5%22 stroke=%22%236E6E73%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;">${FAM.map(f=>`<option value="${f}">${f}家</option>`).join('')}</select>`;
     return `<div class="rec-item">
       <div class="rec-main">
         <div class="rec-left">
@@ -714,6 +837,8 @@ function renderList(list) {
         </div>
         <div style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:6px;">同乗していた家庭</div>
         <div class="edit-fp-grid">${pills}</div>
+        <div style="font-size:12px;color:var(--text2);font-weight:500;margin:2px 0 6px;">送迎方法（片道は半額）</div>
+        <div class="eow-list" id="eow${r.id}"></div>
         <div class="fg" style="margin-bottom:10px;"><label>高速代（円）</label><input class="eToll" type="number" min="0" step="10" placeholder="660"></div>
         <div style="border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:10px;margin-bottom:10px;">
           <div class="toggle-row" onclick="toggleEditSection(${r.id},'transport')" style="margin-bottom:0;">
@@ -754,8 +879,8 @@ function renderSettle(list) {
   list.forEach(r => {
     const recTotal = r.total || r.amount || 0;
     paid[r.payer] += recTotal;
-    // sharesがない旧データは合計金額から均等割りで再計算
-    const shares = r.shares || calcShares(recTotal, r.payer, r.riders || []);
+    // sharesがない旧データは重み（片道=半額）で再計算
+    const shares = r.shares || calcShares(recTotal, r.payer, r.riders || [], r.oneWayRiders || []);
     (r.riders || []).forEach(f => { if (f !== r.payer) rawPay[f][r.payer] += (shares[f] || 0); });
   });
 
