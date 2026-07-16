@@ -484,6 +484,25 @@ function calcShares(total, payer, riders) {
 
 function getGasPrice() { return parseFloat(document.getElementById('gasPrice').value) || 160; }
 
+// 保存済みsharesが新ルール（支払者以外が同額）かを判定し、旧データは再計算する
+function getEffectiveShares(r, total) {
+  const riders = r.riders || [];
+  if (!riders.length) return {};
+  const recalc = calcShares(total, r.payer, riders);
+  if (!r.shares) return recalc;
+  // 支払者以外の負担額がすべて同額かチェック（新ルールの条件）
+  const others = riders.filter(f => f !== r.payer);
+  if (others.length >= 2) {
+    const vals = others.map(f => r.shares[f]);
+    const allSame = vals.every(v => v === vals[0]);
+    if (!allSame) return recalc; // 旧ルールのバラつきがある → 再計算
+  }
+  // 合計が一致するかもチェック
+  const sum = riders.reduce((s,f) => s + (r.shares[f]||0), 0);
+  if (sum !== total) return recalc;
+  return r.shares;
+}
+
 function calcTransport(oneWay) {
   const roundTrip = oneWay * 2;
   return Math.floor(roundTrip / 12 * getGasPrice());
@@ -628,7 +647,9 @@ window.openEdit = id => {
   const ef = document.getElementById('ef'+id);
   ef.querySelector('.eDate').value = r.date;
   ef.querySelector('.ePayer').value = r.payer;
-  ef.querySelector('.eToll').value = r.toll || '';
+  // 旧データ対応：toll/transport/otherがない場合はtotal(またはamount)を高速代欄に入れる
+  const isOldFormat = (r.toll === undefined && !r.transport && !r.other);
+  ef.querySelector('.eToll').value = isOldFormat ? (r.total || r.amount || '') : (r.toll || '');
   const hasTransport = !!r.transport;
   const hasOther = !!r.other;
   ef.querySelector('.eTransportCheck').checked = hasTransport;
@@ -688,7 +709,7 @@ function renderList(list) {
     if (r.transport) detailParts.push('交通費 ¥' + r.transport.cost.toLocaleString() + '（往復' + r.transport.roundTrip + 'km）');
     if (r.other) detailParts.push('その他 ¥' + r.other.amount.toLocaleString() + (r.other.note ? '（'+r.other.note+'）' : ''));
     if (detailParts.length === 0 && recTotal > 0) detailParts.push('¥' + recTotal.toLocaleString());
-    const recShares = r.shares || calcShares(recTotal, r.payer, r.riders || []);
+    const recShares = getEffectiveShares(r, recTotal);
     const riderDetail = (r.riders || []).map(f => f + '家 ¥' + (recShares[f] || 0)).join(' / ');
     const pills = FAM.map(f => `<div class="fp${r.riders.includes(f)?' on':''}" data-f="${f}" onclick="this.classList.toggle('on')">${f}家</div>`).join('');
     const eSelect = `<select class="ePayer" style="-webkit-appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22%3E%3Cpath d=%22M1 1l5 5 5-5%22 stroke=%22%236E6E73%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;">${FAM.map(f=>`<option value="${f}">${f}家</option>`).join('')}</select>`;
@@ -763,7 +784,7 @@ function renderSettle(list) {
     const recTotal = r.total || r.amount || 0;
     paid[r.payer] += recTotal;
     // sharesがない旧データは合計金額から均等割りで再計算
-    const shares = r.shares || calcShares(recTotal, r.payer, r.riders || []);
+    const shares = getEffectiveShares(r, recTotal);
     (r.riders || []).forEach(f => { if (f !== r.payer) rawPay[f][r.payer] += (shares[f] || 0); });
   });
 
